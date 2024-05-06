@@ -22,6 +22,24 @@ func NewScanner(source string) *Scanner {
 	}
 }
 
+var keywords = map[string]token.TokenType{
+	"and":    token.AND,
+	"class":  token.CLASS,
+	"else":   token.ELSE,
+	"false":  token.FALSE,
+	"for":    token.FOR,
+	"fun":    token.FUN,
+	"nil":    token.NIL,
+	"or":     token.OR,
+	"print":  token.PRINT,
+	"return": token.RETURN,
+	"super":  token.SUPER,
+	"this":   token.THIS,
+	"true":   token.TRUE,
+	"var":    token.VAR,
+	"while":  token.WHILE,
+}
+
 func (scanner *Scanner) isNotEnd() bool {
 	return scanner.current < len(scanner.source)
 }
@@ -85,7 +103,7 @@ func (scanner *Scanner) scanToken() {
 		if scanner.isDigit(b) {
 			scanner.number()
 		} else if scanner.isAlpha(b) {
-			identifier()
+			scanner.identifier()
 		} else {
 			// TODO: add some error handle code, lox.Error
 		}
@@ -183,5 +201,13 @@ func (scanner *Scanner) number() {
 }
 
 func (scanner *Scanner) identifier() {
-
+	for scanner.isAlphaNumeric(scanner.peek()) {
+		scanner.advance()
+	}
+	key := scanner.source[scanner.start:scanner.current]
+	tokenType := token.IDENTIFIER
+	if val, ok := keywords[key]; ok {
+		tokenType = val
+	}
+	scanner.addToken(tokenType)
 }
