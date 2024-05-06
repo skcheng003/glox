@@ -84,10 +84,11 @@ func (scanner *Scanner) scanToken() {
 	default:
 		if scanner.isDigit(b) {
 			scanner.number()
+		} else if scanner.isAlpha(b) {
+			identifier()
 		} else {
 			// TODO: add some error handle code, lox.Error
 		}
-
 	}
 }
 
@@ -144,6 +145,14 @@ func (scanner *Scanner) isDigit(b byte) bool {
 	return b >= '0' && b <= '9'
 }
 
+func (scanner *Scanner) isAlpha(b byte) bool {
+	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || b == '_'
+}
+
+func (scanner *Scanner) isAlphaNumeric(b byte) bool {
+	return scanner.isAlpha(b) || scanner.isDigit(b)
+}
+
 func (scanner *Scanner) string() {
 	for scanner.peek() != '"' && scanner.isNotEnd() {
 		if scanner.peek() == '\n' {
@@ -171,4 +180,8 @@ func (scanner *Scanner) number() {
 	}
 	number, _ := strconv.ParseFloat(scanner.source[scanner.start:scanner.current], 64)
 	scanner.addTokenWithLiteral(token.NUMBER, number)
+}
+
+func (scanner *Scanner) identifier() {
+
 }
