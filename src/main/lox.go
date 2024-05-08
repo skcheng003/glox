@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"glox/src/scanner"
 	"io"
 	"log"
 	"os"
@@ -20,7 +21,8 @@ func NewLox() *Lox {
 }
 
 func (lox *Lox) run(str string) {
-	fmt.Println(str)
+	scanner := scanner.NewScanner(str)
+	scanner.ScanTokens()
 }
 
 func (lox *Lox) runFile(path string) {

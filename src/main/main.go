@@ -7,6 +7,7 @@ import (
 
 func main() {
 	lox := NewLox()
+	fmt.Println(len(os.Args))
 	if len(os.Args) > 2 {
 		fmt.Println("glox usage: [script]")
 		os.Exit(64)

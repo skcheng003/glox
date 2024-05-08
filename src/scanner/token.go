@@ -1,6 +1,8 @@
-package token
+package scanner
 
-import "strconv"
+import (
+	"strconv"
+)
 
 type Token struct {
 	tokenType TokenType
