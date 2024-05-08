@@ -1,9 +1,9 @@
-package main
+package lox
 
 import (
 	"bufio"
 	"fmt"
-	"glox/src/scanner"
+	"glox/src/internal/scanner"
 	"io"
 	"log"
 	"os"
@@ -25,7 +25,7 @@ func (lox *Lox) run(str string) {
 	scanner.ScanTokens()
 }
 
-func (lox *Lox) runFile(path string) {
+func (lox *Lox) RunFile(path string) {
 	lox.run(path)
 	file, err := os.Open(path)
 	if err != nil {
@@ -41,7 +41,7 @@ func (lox *Lox) runFile(path string) {
 
 }
 
-func (lox *Lox) runPrompt() {
+func (lox *Lox) RunPrompt() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("> ")
