@@ -1,29 +1,62 @@
-package parser
-
-import (
-	"glox/src/internal/scanner"
-)
+package lox
 
 type Expr struct {
-	left     *Expr
-	operator *scanner.Token
-	right    *Expr
+	Left *Expr
+	Operator *Token
+	Right *Expr
 }
 
-func NewExpr(left *Expr, operator *scanner.Token, right *Expr) *Expr {
+func NewExpr(left *Expr, operator *Token, right *Expr) *Expr {
 	return &Expr{
-		left:     left,
-		operator: operator,
-		right:    right,
+		Left: left,
+		Operator: operator,
+		Right: right,
 	}
 }
 
 type Binary struct {
+	Left *Expr
+	Operator *Token
+	Right *Expr
+}
+
+func NewBinary(left *Expr, operator *Token, right *Expr) *Binary {
+	return &Binary{
+		Left: left,
+		Operator: operator,
+		Right: right,
+	}
+}
+
+type Grouping struct {
 	Expr *Expr
 }
 
-func NewBinary(left, right *Expr, operator *scanner.Token) *Binary {
-	return &Binary{
-		Expr: NewExpr(left, operator, right),
+func NewGrouping(expr *Expr) *Grouping {
+	return &Grouping{
+		Expr: expr,
 	}
 }
+
+type Literal struct {
+	Value any
+}
+
+func NewLiteral(value any) *Literal {
+	return &Literal{
+		Value: value,
+	}
+}
+
+type Unary struct {
+	Operator *Token
+	Right *Expr
+}
+
+func NewUnary(operator *Token, right *Expr) *Unary {
+	return &Unary{
+		Operator: operator,
+		Right: right,
+	}
+}
+

@@ -3,7 +3,6 @@ package lox
 import (
 	"bufio"
 	"fmt"
-	"glox/src/internal/scanner"
 	"io"
 	"log"
 	"os"
@@ -21,7 +20,7 @@ func NewLox() *Lox {
 }
 
 func (lox *Lox) run(str string) {
-	scanner := scanner.NewScanner(str)
+	scanner := NewScanner(str)
 	scanner.ScanTokens()
 }
 
