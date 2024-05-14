@@ -32,15 +32,34 @@ func generateAst(dir, filename string, astTypes []string) {
 	}
 	defer file.Close()
 
-	file.Truncate(0)
+	_ = file.Truncate(0)
+
 	writer := bufio.NewWriter(file)
 
 	defineAstBody(writer, astTypes)
 
-	writer.Flush()
+	_ = writer.Flush()
 }
+
+func defineVisitor(astTypes []string) string {
+	var types []string
+	for _, elem := range astTypes {
+		types = append(types, strings.Trim(strings.Split(elem, ":")[0], " "))
+	}
+	visitorDef := "type Visitor interface {\n"
+	for _, elem := range types {
+		visitorDef += "\tVisit" + elem + "(" + strings.ToLower(elem) + " *" + elem + ") any\n"
+	}
+	visitorDef += "}\n\n"
+	return visitorDef
+}
+
 func defineAstBody(writer *bufio.Writer, astTypes []string) {
 	_, _ = writer.WriteString("package lox\n\n")
+
+	visitorDef := defineVisitor(astTypes)
+
+	_, _ = writer.WriteString(visitorDef)
 
 	for _, elem := range astTypes {
 		structDef, name, fields := defineStruct(elem)
@@ -80,6 +99,10 @@ func defineFunc(name string, fields []string) string {
 		funcDef += "\t\t" + para + ": " + strings.ToLower(para) + ",\n"
 	}
 	funcDef += "\t}\n"
+	funcDef += "}\n\n"
+
+	funcDef += "func (" + strings.ToLower(name) + " *" + name + ") accept(visitor Visitor) any {\n"
+	funcDef += "\treturn visitor.Visit" + name + "(" + strings.ToLower(name) + ")\n"
 	funcDef += "}\n\n"
 	return funcDef
 }
