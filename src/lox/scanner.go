@@ -7,7 +7,7 @@ import (
 
 type Scanner struct {
 	source  string
-	tokens  []Token
+	tokens  []*Token
 	start   int
 	current int
 	line    int
@@ -44,7 +44,7 @@ func (scanner *Scanner) isNotEnd() bool {
 	return scanner.current < len(scanner.source)
 }
 
-func (scanner *Scanner) ScanTokens() []Token {
+func (scanner *Scanner) ScanTokens() []*Token {
 	for scanner.isNotEnd() {
 		scanner.start = scanner.current
 		scanner.scanToken()

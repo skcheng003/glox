@@ -8,17 +8,21 @@ type Visitor interface {
 	VisitUnary(unary *Unary) any
 }
 
-type Expr struct {
-	Left *Expr
-	Operator *Token
-	Right *Expr
+type Expression interface {
+	accept(visitor Visitor) any
 }
 
-func NewExpr(left *Expr, operator *Token, right *Expr) *Expr {
+type Expr struct {
+	Left     Expression
+	Operator *Token
+	Right    Expression
+}
+
+func NewExpr(left Expression, operator *Token, right Expression) *Expr {
 	return &Expr{
-		Left: left,
+		Left:     left,
 		Operator: operator,
-		Right: right,
+		Right:    right,
 	}
 }
 
@@ -27,16 +31,16 @@ func (expr *Expr) accept(visitor Visitor) any {
 }
 
 type Binary struct {
-	Left *Expr
+	Left     Expression
 	Operator *Token
-	Right *Expr
+	Right    Expression
 }
 
-func NewBinary(left *Expr, operator *Token, right *Expr) *Binary {
+func NewBinary(left Expression, operator *Token, right Expression) *Binary {
 	return &Binary{
-		Left: left,
+		Left:     left,
 		Operator: operator,
-		Right: right,
+		Right:    right,
 	}
 }
 
@@ -45,10 +49,10 @@ func (binary *Binary) accept(visitor Visitor) any {
 }
 
 type Grouping struct {
-	Expr *Expr
+	Expr Expression
 }
 
-func NewGrouping(expr *Expr) *Grouping {
+func NewGrouping(expr Expression) *Grouping {
 	return &Grouping{
 		Expr: expr,
 	}
@@ -74,17 +78,16 @@ func (literal *Literal) accept(visitor Visitor) any {
 
 type Unary struct {
 	Operator *Token
-	Right *Expr
+	Right    Expression
 }
 
-func NewUnary(operator *Token, right *Expr) *Unary {
+func NewUnary(operator *Token, right Expression) *Unary {
 	return &Unary{
 		Operator: operator,
-		Right: right,
+		Right:    right,
 	}
 }
 
 func (unary *Unary) accept(visitor Visitor) any {
 	return visitor.VisitUnary(unary)
 }
-

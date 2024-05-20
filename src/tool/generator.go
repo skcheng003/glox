@@ -13,11 +13,11 @@ func GenerateAst(args ...string) {
 		os.Exit(64)
 	}
 	astTypes := []string{
-		"Expr : Left *Expr, Operator *Token, Right *Expr",
-		"Binary : Left *Expr, Operator *Token, Right *Expr",
-		"Grouping: Expr *Expr",
+		"Expr : Left Expression, Operator *Token, Right Expression",
+		"Binary : Left Expression, Operator *Token, Right Expression",
+		"Grouping: Expr Expression",
 		"Literal : Value any",
-		"Unary : Operator *Token, Right *Expr",
+		"Unary : Operator *Token, Right Expression",
 	}
 
 	generateAst(args[0], "expr", astTypes)
