@@ -1,46 +1,27 @@
 package lox
 
 type Visitor interface {
-	VisitExpr(expr *Expr) any
 	VisitBinary(binary *Binary) any
 	VisitGrouping(grouping *Grouping) any
 	VisitLiteral(literal *Literal) any
 	VisitUnary(unary *Unary) any
 }
 
-type Expression interface {
+type Expr interface {
 	accept(visitor Visitor) any
 }
 
-type Expr struct {
-	Left     Expression
-	Operator *Token
-	Right    Expression
-}
-
-func NewExpr(left Expression, operator *Token, right Expression) *Expr {
-	return &Expr{
-		Left:     left,
-		Operator: operator,
-		Right:    right,
-	}
-}
-
-func (expr *Expr) accept(visitor Visitor) any {
-	return visitor.VisitExpr(expr)
-}
-
 type Binary struct {
-	Left     Expression
+	Left Expr
 	Operator *Token
-	Right    Expression
+	Right Expr
 }
 
-func NewBinary(left Expression, operator *Token, right Expression) *Binary {
+func NewBinary(left Expr, operator *Token, right Expr) *Binary {
 	return &Binary{
-		Left:     left,
+		Left: left,
 		Operator: operator,
-		Right:    right,
+		Right: right,
 	}
 }
 
@@ -49,10 +30,10 @@ func (binary *Binary) accept(visitor Visitor) any {
 }
 
 type Grouping struct {
-	Expr Expression
+	Expr Expr
 }
 
-func NewGrouping(expr Expression) *Grouping {
+func NewGrouping(expr Expr) *Grouping {
 	return &Grouping{
 		Expr: expr,
 	}
@@ -78,16 +59,17 @@ func (literal *Literal) accept(visitor Visitor) any {
 
 type Unary struct {
 	Operator *Token
-	Right    Expression
+	Right Expr
 }
 
-func NewUnary(operator *Token, right Expression) *Unary {
+func NewUnary(operator *Token, right Expr) *Unary {
 	return &Unary{
 		Operator: operator,
-		Right:    right,
+		Right: right,
 	}
 }
 
 func (unary *Unary) accept(visitor Visitor) any {
 	return visitor.VisitUnary(unary)
 }
+

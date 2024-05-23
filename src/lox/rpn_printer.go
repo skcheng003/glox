@@ -9,14 +9,10 @@ func NewRpnPrinter() *RpnPrinter {
 	return &RpnPrinter{}
 }
 
-func (r *RpnPrinter) Print(expr Expression) string {
+func (r *RpnPrinter) Print(expr Expr) string {
 	str := fmt.Sprintf("%v", expr.accept(r))
 	fmt.Println(str)
 	return str
-}
-
-func (r *RpnPrinter) VisitExpr(expr *Expr) any {
-	return r.parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right)
 }
 
 func (p *RpnPrinter) VisitBinary(binary *Binary) any {
@@ -38,7 +34,7 @@ func (p *RpnPrinter) VisitUnary(unary *Unary) any {
 	return p.parenthesize(unary.Operator.Lexeme, unary.Right)
 }
 
-func (r *RpnPrinter) parenthesize(name string, exprs ...Expression) string {
+func (r *RpnPrinter) parenthesize(name string, exprs ...Expr) string {
 	var builder string
 	for _, expr := range exprs {
 		str := expr.accept(r).(string)

@@ -9,14 +9,10 @@ func NewAstPrinter() *AstPrinter {
 	return &AstPrinter{}
 }
 
-func (p *AstPrinter) Print(expr Expression) string {
+func (p *AstPrinter) Print(expr Expr) string {
 	str := fmt.Sprintf("%v", expr.accept(p))
 	fmt.Println(str)
 	return str
-}
-
-func (p *AstPrinter) VisitExpr(expr *Expr) any {
-	return p.parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right)
 }
 
 func (p *AstPrinter) VisitBinary(binary *Binary) any {
@@ -38,7 +34,7 @@ func (p *AstPrinter) VisitUnary(unary *Unary) any {
 	return p.parenthesize(unary.Operator.Lexeme, unary.Right)
 }
 
-func (p *AstPrinter) parenthesize(name string, exprs ...Expression) string {
+func (p *AstPrinter) parenthesize(name string, exprs ...Expr) string {
 	var builder string
 	builder += "(" + name
 	for _, expr := range exprs {
