@@ -13,11 +13,10 @@ func GenerateAst(args ...string) {
 		os.Exit(64)
 	}
 	astTypes := []string{
-		"Expr : Left Expression, Operator *Token, Right Expression",
-		"Binary : Left Expression, Operator *Token, Right Expression",
-		"Grouping: Expr Expression",
+		"Binary : Left Expr, Operator *Token, Right Expr",
+		"Grouping: Expr Expr",
 		"Literal : Value any",
-		"Unary : Operator *Token, Right Expression",
+		"Unary : Operator *Token, Right Expr",
 	}
 
 	generateAst(args[0], "expr", astTypes)
@@ -41,23 +40,27 @@ func generateAst(dir, filename string, astTypes []string) {
 	_ = writer.Flush()
 }
 
-func defineVisitor(astTypes []string) string {
+func defineInterface(astTypes []string) string {
 	var types []string
 	for _, elem := range astTypes {
 		types = append(types, strings.Trim(strings.Split(elem, ":")[0], " "))
 	}
-	visitorDef := "type Visitor interface {\n"
+	interfaceDef := "type Visitor interface {\n"
 	for _, elem := range types {
-		visitorDef += "\tVisit" + elem + "(" + strings.ToLower(elem) + " *" + elem + ") any\n"
+		interfaceDef += "\tVisit" + elem + "(" + strings.ToLower(elem) + " *" + elem + ") any\n"
 	}
-	visitorDef += "}\n\n"
-	return visitorDef
+	interfaceDef += "}\n\n"
+
+	interfaceDef += "type Expr interface {\n"
+	interfaceDef += "\taccept(visitor Visitor) any\n"
+	interfaceDef += "}\n\n"
+	return interfaceDef
 }
 
 func defineAstBody(writer *bufio.Writer, astTypes []string) {
 	_, _ = writer.WriteString("package lox\n\n")
 
-	visitorDef := defineVisitor(astTypes)
+	visitorDef := defineInterface(astTypes)
 
 	_, _ = writer.WriteString(visitorDef)
 
