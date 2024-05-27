@@ -1,7 +1,6 @@
 package lox
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -50,8 +49,8 @@ func (scanner *Scanner) ScanTokens() []*Token {
 		scanner.scanToken()
 	}
 	scanner.tokens = append(scanner.tokens, NewToken(EOF, "", "", scanner.line))
-	for _, element := range scanner.tokens {
-		fmt.Println(element.ToString())
+	for _, _ = range scanner.tokens {
+		// fmt.Println(element.ToString())
 	}
 	return scanner.tokens
 }

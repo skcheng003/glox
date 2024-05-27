@@ -12,16 +12,16 @@ type Expr interface {
 }
 
 type Binary struct {
-	Left Expr
+	Left     Expr
 	Operator *Token
-	Right Expr
+	Right    Expr
 }
 
 func NewBinary(left Expr, operator *Token, right Expr) *Binary {
 	return &Binary{
-		Left: left,
+		Left:     left,
 		Operator: operator,
-		Right: right,
+		Right:    right,
 	}
 }
 
@@ -59,17 +59,16 @@ func (literal *Literal) accept(visitor Visitor) any {
 
 type Unary struct {
 	Operator *Token
-	Right Expr
+	Right    Expr
 }
 
 func NewUnary(operator *Token, right Expr) *Unary {
 	return &Unary{
 		Operator: operator,
-		Right: right,
+		Right:    right,
 	}
 }
 
 func (unary *Unary) accept(visitor Visitor) any {
 	return visitor.VisitUnary(unary)
 }
-

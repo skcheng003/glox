@@ -11,6 +11,7 @@ import (
 
 type Lox struct {
 	hadError bool
+	parser   Parser
 }
 
 func NewLox() *Lox {
@@ -21,7 +22,11 @@ func NewLox() *Lox {
 
 func (lox *Lox) run(str string) {
 	scanner := NewScanner(str)
-	scanner.ScanTokens()
+	tokens := scanner.ScanTokens()
+	parser := NewParser(tokens)
+	expr := parser.Parse()
+	astPrinter := NewAstPrinter()
+	astPrinter.Print(expr)
 }
 
 func (lox *Lox) RunFile(path string) {
@@ -37,7 +42,6 @@ func (lox *Lox) RunFile(path string) {
 	if lox.hadError {
 		os.Exit(65)
 	}
-
 }
 
 func (lox *Lox) RunPrompt() {
@@ -51,10 +55,17 @@ func (lox *Lox) RunPrompt() {
 }
 
 func (lox *Lox) Error(line int, message string) {
-	lox.report(line, "", message)
+	report(line, "", message)
 }
 
-func (lox *Lox) report(line int, where, message string) {
-	fmt.Println("[" + strconv.Itoa(line) + "] Error" + where + ": " + message)
-	lox.hadError = true
+func report(line int, where, message string) {
+	fmt.Println("[" + strconv.Itoa(line) + "] Error " + where + ": " + message)
+}
+
+func ErrorHandler(err error, token *Token, message string) {
+	if token.tokenType == EOF {
+		report(token.line, "at end", message)
+	} else {
+		report(token.line, "at '"+token.Lexeme+"'", message)
+	}
 }
