@@ -9,28 +9,30 @@ import (
 	"strconv"
 )
 
+var hadError bool
+
 type Lox struct {
-	hadError bool
-	parser   Parser
+	parser Parser
 }
 
 func NewLox() *Lox {
-	return &Lox{
-		hadError: false,
-	}
+	return &Lox{}
 }
 
-func (lox *Lox) run(str string) {
+func (l *Lox) run(str string) {
 	scanner := NewScanner(str)
 	tokens := scanner.ScanTokens()
 	parser := NewParser(tokens)
-	expr := parser.Parse()
+	expr, _ := parser.Parse()
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// }
 	astPrinter := NewAstPrinter()
 	astPrinter.Print(expr)
 }
 
-func (lox *Lox) RunFile(path string) {
-	lox.run(path)
+func (l *Lox) RunFile(path string) {
+	l.run(path)
 	file, err := os.Open(path)
 	if err != nil {
 		log.Fatal("Open file failed")
@@ -38,31 +40,32 @@ func (lox *Lox) RunFile(path string) {
 	defer file.Close()
 
 	content, err := io.ReadAll(file)
-	lox.run(string(content))
-	if lox.hadError {
+	l.run(string(content))
+	if hadError {
 		os.Exit(65)
 	}
 }
 
-func (lox *Lox) RunPrompt() {
+func (l *Lox) RunPrompt() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("> ")
 		line, _, _ := reader.ReadLine()
-		lox.run(string(line))
-		lox.hadError = false
+		hadError = false
+		l.run(string(line))
 	}
 }
 
-func (lox *Lox) Error(line int, message string) {
-	report(line, "", message)
-}
+//
+// func (lox *Lox) Error(line int, message string) {
+// 	report(line, "", message)
+// }
 
 func report(line int, where, message string) {
 	fmt.Println("[" + strconv.Itoa(line) + "] Error " + where + ": " + message)
 }
 
-func ErrorHandler(err error, token *Token, message string) {
+func ErrorHandler(token *Token, message string) {
 	if token.tokenType == EOF {
 		report(token.line, "at end", message)
 	} else {

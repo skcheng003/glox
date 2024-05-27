@@ -9,10 +9,13 @@ func NewAstPrinter() *AstPrinter {
 	return &AstPrinter{}
 }
 
-func (p *AstPrinter) Print(expr Expr) string {
+func (p *AstPrinter) Print(expr Expr) {
+	if expr == nil {
+		fmt.Println("Ast_printer: invalid input")
+		return
+	}
 	str := fmt.Sprintf("%v", expr.accept(p))
 	fmt.Println(str)
-	return str
 }
 
 func (p *AstPrinter) VisitBinary(binary *Binary) any {

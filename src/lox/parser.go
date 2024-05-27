@@ -5,6 +5,8 @@ import (
 )
 
 var ErrParseToken = errors.New("parser error")
+var ErrNoRightParen = errors.New("parser found no right parenthesis")
+var ErrInvalidToken = errors.New("parser found invalid token")
 
 type Parser struct {
 	tokens  []*Token
@@ -18,86 +20,114 @@ func NewParser(tokens []*Token) *Parser {
 	}
 }
 
-func (p *Parser) Parse() Expr {
+func (p *Parser) Parse() (Expr, error) {
 	return p.expression()
 }
 
-func (p *Parser) expression() Expr {
+func (p *Parser) expression() (Expr, error) {
 	return p.equality()
 }
 
-func (p *Parser) equality() Expr {
-	expr := p.comparison()
+func (p *Parser) equality() (Expr, error) {
+	expr, err := p.comparison()
+	if err != nil {
+		return nil, err
+	}
 	for p.match(BANG_EQUAL, EQUAL_EQUAL) {
 		operator := p.previous()
-		right := p.comparison()
+		right, err := p.comparison()
+		if err != nil {
+			return nil, err
+		}
 		expr = NewBinary(expr, operator, right)
 	}
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) comparison() Expr {
-	expr := p.term()
+func (p *Parser) comparison() (Expr, error) {
+	expr, err := p.term()
+	if err != nil {
+		return nil, err
+	}
 	for p.match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL) {
 		operator := p.previous()
-		right := p.term()
+		right, err := p.term()
+		if err != nil {
+			return nil, err
+		}
 		expr = NewBinary(expr, operator, right)
 	}
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) term() Expr {
-	expr := p.factor()
+func (p *Parser) term() (Expr, error) {
+	expr, err := p.factor()
+	if err != nil {
+		return nil, err
+	}
 	for p.match(PLUS, MINUS) {
 		operator := p.previous()
-		right := p.factor()
+		right, err := p.factor()
+		if err != nil {
+			return nil, err
+		}
 		expr = NewBinary(expr, operator, right)
 	}
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) factor() Expr {
-	expr := p.unary()
+func (p *Parser) factor() (Expr, error) {
+	expr, err := p.unary()
+	if err != nil {
+		return nil, err
+	}
 	for p.match(SLASH, STAR) {
 		operator := p.previous()
-		right := p.unary()
+		right, err := p.unary()
+		if err != nil {
+			return nil, err
+		}
 		expr = NewBinary(expr, operator, right)
 	}
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) unary() Expr {
+func (p *Parser) unary() (Expr, error) {
 	if p.match(BANG, MINUS) {
 		operator := p.previous()
-		right := p.unary()
-		return NewUnary(operator, right)
+		right, err := p.unary()
+		return NewUnary(operator, right), err
 	}
 	return p.primary()
 }
 
-func (p *Parser) primary() Expr {
+func (p *Parser) primary() (Expr, error) {
 	if p.match(TRUE) {
-		return NewLiteral(true)
+		return NewLiteral(true), nil
 	}
 	if p.match(FALSE) {
-		return NewLiteral(false)
+		return NewLiteral(false), nil
 	}
 	if p.match(NIL) {
-		return NewLiteral(nil)
+		return NewLiteral(nil), nil
 	}
 	if p.match(NUMBER, STRING) {
-		return NewLiteral(p.previous().literal)
+		return NewLiteral(p.previous().literal), nil
 	}
 	if p.match(LEFT_PAREN) {
-		expr := p.expression()
-		_, err := p.consume(RIGHT_PAREN)
+		expr, err := p.expression()
 		if err != nil {
-			ErrorHandler(err, p.peek(), "Expect ')' after expression.")
+			return nil, ErrParseToken
 		}
-		return NewGrouping(expr)
+		_, err = p.consume(RIGHT_PAREN)
+		if err != nil {
+			ErrorHandler(p.peek(), "Expect ')' after expression.")
+			return nil, ErrNoRightParen
+		}
+		return NewGrouping(expr), nil
 	}
-	ErrorHandler(ErrParseToken, p.peek(), "Expect expression")
-	return nil
+	ErrorHandler(p.peek(), "Expect expression")
+	return nil, ErrInvalidToken
 }
 
 func (p *Parser) match(tokenTypes ...TokenType) bool {
